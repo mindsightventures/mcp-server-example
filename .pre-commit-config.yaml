@@ -13,24 +13,24 @@ repos:
     hooks:
       - id: black
         name: black
-        entry: uv run black
+        entry: uv run black src
         language: system
-        types: [python]
-        exclude: ^tests/.*$
+        pass_filenames: false
+        always_run: true
 
       - id: isort
         name: isort
-        entry: uv run isort
+        entry: uv run isort src
         language: system
-        types: [python]
-        exclude: ^tests/.*$
+        pass_filenames: false
+        always_run: true
 
       - id: ruff
         name: ruff
-        entry: uv run ruff check
+        entry: uv run ruff check src
         language: system
-        types: [python]
-        exclude: ^tests/.*$
+        pass_filenames: false
+        always_run: true
 
       - id: mypy
         name: mypy
