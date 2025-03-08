@@ -46,10 +46,16 @@ jobs:
       run: |
         uv run pytest tests -v -k "not integration" --cov=src/weather --cov-report=xml
 
+    - name: Debug coverage file
+      run: |
+        ls -la
+        head -n 20 coverage.xml
+
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
         fail_ci_if_error: false
         slug: mindsightventures/mcp-server-example
+        verbose: true
