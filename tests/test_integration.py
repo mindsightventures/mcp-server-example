@@ -133,15 +133,46 @@ async def test_hourly_forecast():
         # Print the result for debugging
         print(f"Result: {result}")
 
-        # If we don't have access to One Call API 3.0, we expect it to fail
-        if not has_onecall_access and "Unable to fetch hourly forecast" in result:
-            print("Skipping assertion due to lack of One Call API 3.0 access")
-            continue
-
         # Verify that hourly forecast data was found
         assert "Unable to" not in result, f"Failed to get hourly forecast for {city}, {country}"
         assert "Hourly Weather Forecast" in result, "Response doesn't contain hourly forecast"
         assert "Chance of Rain:" in result, "Response doesn't contain precipitation data"
+
+        # The test should pass regardless of whether we have One Call API 3.0 access or not,
+        # because our implementation now falls back to the 5-day/3-hour forecast API
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_hourly_forecast_fallback():
+    """Test the fallback mechanism for hourly forecast with real API calls."""
+    # This test explicitly tests the fallback mechanism by forcing the One Call API to fail
+    # by using a modified URL that will cause the One Call API request to fail
+
+    # Save the original API base URL
+    original_api_base = weather.OPENWEATHER_API_BASE
+
+    try:
+        # Temporarily modify the API base URL to force the One Call API to fail
+        weather.OPENWEATHER_API_BASE = "https://api.openweathermap.org/data/3.0/invalid_endpoint"
+
+        for city, country in TEST_CITIES[:1]:  # Test only one city to avoid too many API calls
+            print(f"\nTesting hourly forecast fallback for {city}, {country}")
+
+            # Get hourly forecast for the city (3 hours)
+            result = await weather.get_hourly_forecast(city, country, hours=3)
+
+            # Print the result for debugging
+            print(f"Result: {result}")
+
+            # Verify that hourly forecast data was found using the fallback API
+            assert "Unable to" not in result, f"Failed to get hourly forecast for {city}, {country}"
+            assert "Hourly Weather Forecast" in result, "Response doesn't contain hourly forecast"
+            assert "Chance of Rain:" in result, "Response doesn't contain precipitation data"
+
+    finally:
+        # Restore the original API base URL
+        weather.OPENWEATHER_API_BASE = original_api_base
 
 
 @pytest.mark.integration

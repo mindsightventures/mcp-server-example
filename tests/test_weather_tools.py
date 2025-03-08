@@ -244,13 +244,14 @@ async def test_get_hourly_forecast_no_coordinates(mock_make_request, mock_get_co
 @patch("src.weather.weather.make_weather_request")
 async def test_get_hourly_forecast_no_data(mock_make_request, mock_get_coordinates, mock_coordinates):
     mock_get_coordinates.return_value = mock_coordinates
-    mock_make_request.return_value = None
+    # First call returns None (One Call API fails), second call also returns None (fallback API fails)
+    mock_make_request.side_effect = [None, None]
 
     result = await get_hourly_forecast("Madrid", "ES")
 
-    assert "Could not retrieve hourly forecast data for Madrid, ES" in result
+    assert "No hourly forecast data available" in result
     mock_get_coordinates.assert_called_once_with("Madrid", "ES", "")
-    mock_make_request.assert_called_once()
+    assert mock_make_request.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -258,13 +259,49 @@ async def test_get_hourly_forecast_no_data(mock_make_request, mock_get_coordinat
 @patch("src.weather.weather.make_weather_request")
 async def test_get_hourly_forecast_no_hourly_data(mock_make_request, mock_get_coordinates, mock_coordinates):
     mock_get_coordinates.return_value = mock_coordinates
-    mock_make_request.return_value = {"lat": 40.4165, "lon": -3.7026}  # No hourly key
+    # First call returns data without hourly key (One Call API), second call also returns data without list key (fallback API)
+    mock_make_request.side_effect = [{"lat": 40.4165, "lon": -3.7026}, {"lat": 40.4165, "lon": -3.7026}]
 
     result = await get_hourly_forecast("Madrid", "ES")
 
     assert "No hourly forecast data available" in result
     mock_get_coordinates.assert_called_once_with("Madrid", "ES", "")
-    mock_make_request.assert_called_once()
+    assert mock_make_request.call_count == 2
+
+
+@pytest.mark.asyncio
+@patch("src.weather.weather.get_coordinates")
+@patch("src.weather.weather.make_weather_request")
+async def test_get_hourly_forecast_fallback_success(mock_make_request, mock_get_coordinates, mock_coordinates):
+    mock_get_coordinates.return_value = mock_coordinates
+
+    # Create mock data for the 5-day/3-hour forecast API
+    forecast_data = {
+        "list": [
+            {
+                "dt": 1619352000,
+                "main": {
+                    "temp": 293.15,
+                    "feels_like": 292.15,
+                    "pressure": 1015,
+                    "humidity": 60,
+                },
+                "weather": [{"id": 801, "main": "Clouds", "description": "few clouds", "icon": "02d"}],
+                "wind": {"speed": 2.57, "deg": 180},
+                "pop": 0.2,
+            }
+        ]
+    }
+
+    # First call returns data without hourly key (One Call API fails), second call returns forecast data (fallback API succeeds)
+    mock_make_request.side_effect = [{"lat": 40.4165, "lon": -3.7026}, forecast_data]
+
+    result = await get_hourly_forecast("Madrid", "ES", hours=1)
+
+    assert "Hourly Weather Forecast for Madrid, ES" in result
+    assert "Few clouds" in result  # Capitalized in the output
+    mock_get_coordinates.assert_called_once_with("Madrid", "ES", "")
+    assert mock_make_request.call_count == 2
 
 
 @pytest.mark.asyncio

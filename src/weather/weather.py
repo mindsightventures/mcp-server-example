@@ -482,7 +482,7 @@ async def get_hourly_forecast(
 
     lat, lon = coordinates
 
-    # Get weather data
+    # Get weather data from One Call API 3.0
     url = OPENWEATHER_API_BASE
     params = {
         "lat": lat,
@@ -491,22 +491,71 @@ async def get_hourly_forecast(
     }
 
     data = await make_weather_request(url, params)
-    if not data:
-        location_str = f"{city}, {country_code if country_code else ''}"
-        if state_code:
-            location_str += f", {state_code}"
-        return f"Could not retrieve hourly forecast data for {location_str}."
 
-    # Format the forecast
+    # Format the location string for output
     location_str = f"{city}, {country_code if country_code else ''}"
     if state_code:
         location_str += f", {state_code}"
     response = f"Hourly Weather Forecast for {location_str}\n"
 
-    if "hourly" not in data or not data["hourly"]:
-        return response + "No hourly forecast data available."
+    # Check if we got valid data from One Call API 3.0
+    if not data or "hourly" not in data or not data["hourly"]:
+        # Try fallback to 5-day/3-hour forecast API if One Call API 3.0 fails
+        url = "https://api.openweathermap.org/data/2.5/forecast"
+        params = {
+            "lat": lat,
+            "lon": lon,
+        }
 
-    # Limit the number of hours
+        data = await make_weather_request(url, params)
+
+        if not data or "list" not in data or not data["list"]:
+            return response + "No hourly forecast data available."
+
+        # Process data from 5-day/3-hour forecast API
+        forecast_list = data["list"]
+        hours_to_show = min(hours, len(forecast_list))
+
+        for i in range(hours_to_show):
+            hour = forecast_list[i]
+            time = hour.get("dt", 0)
+
+            # Convert Unix timestamp to time
+            from datetime import datetime
+
+            time_str = datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M")
+
+            main = hour.get("main", {})
+            temp = main.get("temp", 273.15)
+            weather = hour.get("weather", [{}])[0]
+            description = weather.get("description", "Unknown")
+
+            wind = hour.get("wind", {})
+            wind_speed = wind.get("speed", 0)
+            wind_deg = wind.get("deg", 0)
+
+            pop = hour.get("pop", 0) * 100  # Probability of precipitation (0-1)
+
+            # Convert wind direction to cardinal direction
+            directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+            direction_index = round(wind_deg / 45) % 8
+            wind_direction = directions[direction_index]
+
+            # Convert temperature from Kelvin to the requested unit
+            temp_converted = kelvin_to_unit(temp, units)
+
+            # Format the hour's forecast
+            forecast_parts = [
+                f"{time_str}: {format_temperature(temp_converted, units)}",
+                f"{description.capitalize()}",
+                f"Wind: {round(wind_speed, 1)} m/s {wind_direction}",
+                f"Chance of Rain: {round(pop)}%",
+            ]
+            response += ", ".join(forecast_parts) + "\n"
+
+        return response
+
+    # Process data from One Call API 3.0
     hours_to_show = min(hours, len(data["hourly"]))
 
     for i in range(hours_to_show):
@@ -532,9 +581,12 @@ async def get_hourly_forecast(
         direction_index = round(wind_deg / 45) % 8
         wind_direction = directions[direction_index]
 
+        # Convert temperature from Kelvin to the requested unit
+        temp_converted = kelvin_to_unit(temp, units)
+
         # Format the hour's forecast
         forecast_parts = [
-            f"{time_str}: {format_temperature(temp, units)}",
+            f"{time_str}: {format_temperature(temp_converted, units)}",
             f"{description.capitalize()}",
             f"Wind: {round(wind_speed, 1)} m/s {wind_direction}",
             f"Chance of Rain: {round(pop)}%",
