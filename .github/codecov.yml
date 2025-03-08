@@ -1,5 +1,8 @@
 codecov:
   require_ci_to_pass: true
+  # Explicitly set the repository
+  url: "https://github.com/mindsightventures/mcp-server-example"
+  branch: main
 
 coverage:
   precision: 2
