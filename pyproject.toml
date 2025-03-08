@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=42.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+asyncio_mode = "auto"
+markers = [
+    "integration: marks tests as integration tests that make actual API calls",
+]
+
+[project]
+name = "weather-app"
+version = "0.1.0"
+description = "Weather app with worldwide support"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+dependencies = [
+    "httpx>=0.23.0",
+    "mcp[cli]>=1.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.18.0",
+    "pytest-mock>=3.7.0",
+    "pytest-cov>=4.0.0",
+    "black>=24.2.0",
+    "isort>=5.13.0",
+    "ruff>=0.2.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["weather*"]
+namespaces = false
+
+[tool.uv]
+# UV-specific configuration
+pip = { no-binary = [] }  # Allow binary packages
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+explicit_package_bases = true
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.",
+    "pass",
+    "raise ImportError"
+]
+
+[tool.coverage.run]
+omit = ["tests/*"]
