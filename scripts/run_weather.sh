@@ -26,4 +26,4 @@ echo -e "  - check_api_key_and_subscription: Check your API key and subscription
 echo -e "${YELLOW}Press Ctrl+C to stop the server${NC}"
 
 # Run the weather app
-uv run -m weather.weather 
+uv run -m weather.weather

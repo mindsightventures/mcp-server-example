@@ -43,4 +43,4 @@ if [ "$COVERAGE" = true ]; then
   echo ""
   echo "Coverage report generated in htmlcov/ directory"
   echo "Open htmlcov/index.html in your browser to view the detailed report"
-fi 
+fi

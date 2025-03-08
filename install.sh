@@ -15,4 +15,4 @@ uv add --dev pytest pytest-asyncio pytest-mock pytest-cov
 
 echo -e "${GREEN}Dependencies installed successfully!${NC}"
 echo -e "${YELLOW}You can now run the weather app with:${NC}"
-echo -e "  ${GREEN}./scripts/run_weather.sh${NC}" 
+echo -e "  ${GREEN}./scripts/run_weather.sh${NC}"

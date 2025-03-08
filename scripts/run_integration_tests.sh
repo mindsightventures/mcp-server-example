@@ -21,4 +21,4 @@ if [ $? -eq 0 ]; then
 else
     echo -e "${RED}Some integration tests failed.${NC}"
     exit 1
-fi 
+fi

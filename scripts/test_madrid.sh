@@ -22,4 +22,4 @@ if [ $? -eq 0 ]; then
 else
     echo -e "${RED}Madrid coordinates test failed.${NC}"
     exit 1
-fi 
+fi

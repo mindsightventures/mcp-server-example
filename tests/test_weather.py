@@ -3,7 +3,6 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
-import pytest_asyncio
 
 # Add the parent directory to sys.path to import the weather module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

@@ -139,20 +139,20 @@ To create your own MCP server using this project as a template:
    import os
    from dotenv import load_dotenv
    from mcp.server.fastmcp import FastMCP
-   
+
    # Load environment variables
    load_dotenv()
-   
+
    # Initialize FastMCP server
    mcp = FastMCP("your-app-name")
-   
+
    # Define your tools
    @mcp.tool
    async def your_tool(param1: str, param2: int) -> str:
        """Tool description."""
        # Your implementation here
        return "Result"
-   
+
    # Run the server
    if __name__ == "__main__":
        mcp.run()

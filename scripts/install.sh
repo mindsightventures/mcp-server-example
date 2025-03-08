@@ -22,11 +22,11 @@ uv pip install -e .
 if [[ "$*" == *--dev* ]]; then
     echo "Installing development dependencies..."
     uv pip install -e ".[dev]"
-    
+
     # Install pre-commit hooks
     echo "Setting up pre-commit hooks..."
     uv run pre-commit install
 fi
 
 echo "Installation complete!"
-echo "You can activate the virtual environment with: source .venv/bin/activate" 
+echo "You can activate the virtual environment with: source .venv/bin/activate"
