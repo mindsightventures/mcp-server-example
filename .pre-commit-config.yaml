@@ -3,7 +3,9 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^tests/.*$
       - id: end-of-file-fixer
+        exclude: ^tests/.*$
       - id: check-yaml
       - id: check-added-large-files
 
@@ -14,7 +16,6 @@ repos:
         entry: uv run black
         language: system
         types: [python]
-        files: ^src/.*\.py$
         exclude: ^tests/.*$
 
       - id: isort
@@ -22,7 +23,6 @@ repos:
         entry: uv run isort
         language: system
         types: [python]
-        files: ^src/.*\.py$
         exclude: ^tests/.*$
 
       - id: ruff
@@ -30,7 +30,6 @@ repos:
         entry: uv run ruff check
         language: system
         types: [python]
-        files: ^src/.*\.py$
         exclude: ^tests/.*$
 
       - id: mypy
