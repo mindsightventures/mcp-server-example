@@ -1,5 +1,8 @@
 # Weather App
 
+[![CI](https://github.com/mindsightventures/mcp-server-example/actions/workflows/ci.yml/badge.svg)](https://github.com/mindsightventures/mcp-server-example/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/mindsightventures/mcp-server-example/branch/main/graph/badge.svg)](https://codecov.io/gh/mindsightventures/mcp-server-example)
+
 A command-line and MCP-based weather application that provides current weather conditions, forecasts, and alerts for locations worldwide.
 
 ## Features
